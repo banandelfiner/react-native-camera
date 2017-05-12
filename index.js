@@ -42,7 +42,7 @@ function convertNativeProps(props) {
   if (typeof props.captureMode === 'string') {
     newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
   }
-  
+
   if (typeof props.captureTarget === 'string') {
     newProps.captureTarget = Camera.constants.CaptureTarget[props.captureTarget];
   }
@@ -245,6 +245,10 @@ export default class Camera extends Component {
 
   getFOV() {
     return CameraManager.getFOV();
+  }
+
+  setFrameRate(fps) {
+     return CameraManager.setFrameRate(fps);
   }
 
   hasFlash() {
