@@ -866,7 +866,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     [fileManager createDirectoryAtPath:userDirectory withIntermediateDirectories:YES attributes:nil error:&patherror];
     if (patherror != nil) {
         NSLog(@"error creating directory: %@", patherror);
-        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(patherror.description));
+        self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(patherror.description));
         return;
     }
 
