@@ -15,6 +15,7 @@
 
 @property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
 @property (assign, nonatomic) NSInteger* flashMode;
+@property NSString* playerID;
 
 @end
 
@@ -366,6 +367,9 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options
   NSInteger captureMode = [[options valueForKey:@"mode"] intValue];
   NSInteger captureTarget = [[options valueForKey:@"target"] intValue];
 
+  int playerid_int = [[options objectForKey:@"playerid"] intValue];
+  self.playerID = [NSString stringWithFormat:@"%d", playerid_int];
+
   if (captureMode == RCTCameraCaptureModeStill) {
     [self captureStill:captureTarget options:options resolve:resolve reject:reject];
   }
@@ -665,13 +669,20 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
   else if (target == RCTCameraCaptureTargetDisk) {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths firstObject];
+    NSString *userDirectory = [[paths firstObject] stringByAppendingPathComponent:self.playerID];
+    NSString *fullPath = [[userDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
-
-    [fileManager createFileAtPath:fullPath contents:imageData attributes:nil];
-    responseString = fullPath;
+    NSError *patherror = nil;
+    [fileManager createDirectoryAtPath:userDirectory withIntermediateDirectories:YES attributes:nil error:&patherror];
+    if (patherror != nil) {
+        NSLog(@"error creating directory: %@", patherror);
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(patherror.description));
+        return;
+    } else {
+        [fileManager createFileAtPath:fullPath contents:imageData attributes:nil];
+        responseString = fullPath;
+    }
   }
 
   else if (target == RCTCameraCaptureTargetTemp) {
@@ -845,11 +856,19 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   }
   else if (self.videoTarget == RCTCameraCaptureTargetDisk) {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths firstObject];
-    NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"mov"];
+    NSString *userDirectory = [[paths firstObject] stringByAppendingPathComponent:self.playerID];
+    NSString *fullPath = [[userDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"mov"];
 
     NSFileManager * fileManager = [NSFileManager defaultManager];
     NSError * error = nil;
+    NSError * patherror = nil;
+
+    [fileManager createDirectoryAtPath:userDirectory withIntermediateDirectories:YES attributes:nil error:&patherror];
+    if (patherror != nil) {
+        NSLog(@"error creating directory: %@", patherror);
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(patherror.description));
+        return;
+    }
 
     //moving to destination
     if (!([fileManager moveItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
