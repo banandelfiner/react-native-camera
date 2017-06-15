@@ -304,7 +304,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 break;
             default:
             case RCT_CAMERA_CAPTURE_TARGET_DISK:
-                mVideoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
+                mVideoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO, options.getInt("playerid"));
                 break;
         }
         if (mVideoFile == null) {
@@ -610,7 +610,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 break;
             }
             case RCT_CAMERA_CAPTURE_TARGET_DISK: {
-                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, options.getInt("playerid"));
                 if (pictureFile == null) {
                     promise.reject("Error creating media file.");
                     return;
@@ -669,9 +669,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         promise.resolve(null != flashModes && !flashModes.isEmpty());
     }
 
-    private File getOutputMediaFile(int type) {
+    private File getOutputMediaFile(int type, int playerid) {
         // Get environment directory type id from requested media type.
         String environmentDirectoryType;
+        String id_string = String.valueOf(playerid);
         if (type == MEDIA_TYPE_IMAGE) {
             environmentDirectoryType = Environment.DIRECTORY_PICTURES;
         } else if (type == MEDIA_TYPE_VIDEO) {
@@ -681,9 +682,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             return null;
         }
 
+        File path = new File(Environment.getExternalStoragePublicDirectory(environmentDirectoryType), id_string);
+
         return getOutputFile(
                 type,
-                Environment.getExternalStoragePublicDirectory(environmentDirectoryType)
+                path
         );
     }
 
