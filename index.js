@@ -251,6 +251,10 @@ export default class Camera extends Component {
      return CameraManager.setFrameRate(fps);
   }
 
+  getFrameRate() {
+     return CameraManager.getFrameRate();
+  }
+
   hasFlash() {
     if (Platform.OS === 'android') {
       const props = convertNativeProps(this.props);
