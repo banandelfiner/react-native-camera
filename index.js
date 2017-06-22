@@ -151,21 +151,21 @@ export default class Camera extends Component {
     };
   }
 
-  // async componentWillMount() {
-  //   this._addOnBarCodeReadListener()
-  //
-  //   let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
-  //   let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
-  //   let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
-  //
-  //   if (check) {
-  //     const isAuthorized = await check();
-  //     this.setState({ isAuthorized });
-  //   }
-  // }
+  async componentWillMount() {
+    this._addOnBarCodeReadListener()
+
+    // let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
+    // let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
+    // let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
+    //
+    // if (check) {
+    //   const isAuthorized = await check();
+    //   this.setState({ isAuthorized });
+    // }
+  }
 
   componentWillUnmount() {
-    // this._removeOnBarCodeReadListener()
+    this._removeOnBarCodeReadListener()
 
     if (this.state.isRecording) {
       this.stopCapture();
